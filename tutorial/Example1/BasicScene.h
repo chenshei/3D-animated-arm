@@ -16,6 +16,8 @@ public:
     void CursorPosCallback(cg3d::Viewport* viewport, int x, int y, bool dragging, int* buttonState)  override;
     void KeyCallback(cg3d::Viewport* viewport, int x, int y, int key, int scancode, int action, int mods) override;
      Eigen::Vector3f GetSpherePos();
+    Eigen::Vector3f GetCylPos(int i);
+    void print_vector(Eigen::Vector3f vec);
      void IK_algoritm();
 private:
     std::shared_ptr<Movable> root;

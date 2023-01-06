@@ -31,6 +31,7 @@
 // #include "AutoMorphingModel.h"
 
 using namespace cg3d;
+#define CYL_SIZE 1.6
 
 void BasicScene::Init(float fov, int width, int height, float near, float far)
 {
@@ -143,21 +144,37 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
 
     if(IK){
         Eigen::Vector3f l = Eigen::Vector3f(1.6f,0,0);
-        Eigen::Vector3f root_end_arm = (cyls[2]->GetRotation()*cyls[2]->GetTranslation());
-        Eigen::Vector3f x_translation_end_arm = cyls[2]->GetRotation()*l;
-        Eigen::Vector3f E =Eigen::Vector3f((root_end_arm).x() + (x_translation_end_arm).x(),(root_end_arm).y() + (x_translation_end_arm).y(),(root_end_arm).z() + (x_translation_end_arm).z()) ;
+//        Eigen::Vector3f root_end_arm = (cyls[2]->GetRotation()*cyls[2]->GetTranslation());
+//        Eigen::Vector3f x_translation_end_arm = cyls[2]->GetRotation()*l;
+//        Eigen::Vector3f E =Eigen::Vector3f((root_end_arm).x() + (x_translation_end_arm).x(),(root_end_arm).y() + (x_translation_end_arm).y(),(root_end_arm).z() + (x_translation_end_arm).z()) ;
+        Eigen::Vector3f E = GetCylPos(2);
         Eigen::Vector3f D = sphere1->GetRotation()*sphere1->GetTranslation();
-        float dist = sqrt(pow(D.x()-E.x(),2)+pow(D.y()-E.y(),2)+pow(D.z()-E.z(),2));
+//        float dist = sqrt(pow(D.x()-E.x(),2)+pow(D.y()-E.y(),2)+pow(D.z()-E.z(),2));
+        float dist = (D-E).norm();
         if(dist > 0.05f){
-            Eigen::Vector3f R = (cyls[arm_index]->GetRotation()*cyls[arm_index]->GetTranslation());
-            Eigen::Vector3f RD=Eigen::Vector3f((D).x() - (R).x(),(D).y() - (R).y(),(D).z() - (R).z()) ;
-            Eigen::Vector3f RE=Eigen::Vector3f((E).x() - (R).x(),(E).y() - (R).y(),(E).z() - (R).z()) ;
+//            Eigen::Vector3f R = (cyls[arm_index]->GetRotation()*cyls[arm_index]->GetTranslation());
+            Eigen::Vector3f  R ;
+            if(arm_index==0){
+                R=Eigen::Vector3f(0,0,0);
+            }else{
+                R= GetCylPos(arm_index-1);
+            }
+//            Eigen::Vector3f RD=Eigen::Vector3f((D).x() - (R).x(),(D).y() - (R).y(),(D).z() - (R).z()) ;
+//            Eigen::Vector3f RE=Eigen::Vector3f((E).x() - (R).x(),(E).y() - (R).y(),(E).z() - (R).z()) ;
+            Eigen::Vector3f RD=D-R;
+            Eigen::Vector3f RE=E-R;
             Eigen::Vector3f N= RE.cross(RD);
             float lenght_RD = sqrt(pow(RD.x(),2)+pow(RD.y(),2)+pow(RD.z(),2));
             float lenght_RE = sqrt(pow(RE.x(),2)+pow(RE.y(),2)+pow(RE.z(),2));
+//            float lenght_N = sqrt(pow(N.x(),2)+pow(N.y(),2)+pow(N.z(),2));
+//            Eigen::Vector3f N_NORMAL= N.normalized();
+//            Axis N_axis =
             float cos_a =((RD).x() * (RE).x()+(RD).y() * (RE).y()+(RD).z() * (RE).z())/(lenght_RD*lenght_RE);
             float a= acos(cos_a);
             cyls[arm_index]->Rotate(a,N);
+            Eigen::Vector3f position= GetCylPos(arm_index);
+//            cyls[arm_index]->RotateByDegree(a,Eigen::Vector3f(0,0,1));
+//            cyls[arm_index]->RotateInSystem(cyls[arm_index]->GetRotation(),a,N_NORMAL);
             if(arm_index == 0){
                 arm_index = 2;
             }
@@ -335,13 +352,30 @@ Eigen::Vector3f BasicScene::GetSpherePos()
       res = cyls[tipIndex]->GetRotation()*l;   
       return res;  
 }
+Eigen::Vector3f BasicScene::GetCylPos(int i)
+{
+    Eigen::Vector3f l = Eigen::Vector3f(1.6f,0,0)*(float)(i+1);
+    Eigen::Vector3f res;
+    res = cyls[i]->GetRotation()*l;
+    return res;
+}
+void BasicScene::print_vector(Eigen::Vector3f vec){
+    std::cout << "(" << vec.x() <<"," << vec.y() << "," << vec.z() << ")" << std::endl;
+}
 
 void BasicScene::IK_algoritm(){
     IK = !IK;
     float arm_lenght = 1.6f*3.0f;
-    Eigen::Vector3f base_position = cyls[0]->GetRotation()*cyls[0]->GetTranslation();
+//    Eigen::Vector3f base_position = GetCylPos(0)+(cyls[0]->GetRotation()*Eigen::Vector3f(-1.6,0,0)) ;
+//    print_vector(base_position);
+//    Eigen::Vector3f base_position = cyls[0]->GetRotation()*cyls[0]->GetTranslation();
+
     Eigen::Vector3f sphere_position = sphere1->GetRotation()*sphere1->GetTranslation();
-    float dist = sqrt(pow(sphere_position.x()-base_position.x(),2)+pow(sphere_position.y()-base_position.y(),2)+pow(sphere_position.z()-base_position.z(),2));
+    print_vector(sphere_position);
+    float dist =  sphere_position.norm();
+
+//    float dist = sqrt(pow(sphere_position.x()-base_position.x(),2)+pow(sphere_position.y()-base_position.y(),2)+pow(sphere_position.z()-base_position.z(),2));
+    std::cout<<"dist:"<<dist<<std::endl;
     if(dist > arm_lenght){
         std::cout<<"to far"<<std::endl;
         IK=false;
