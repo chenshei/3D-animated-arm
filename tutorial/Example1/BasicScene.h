@@ -1,7 +1,7 @@
 #pragma once
 #include "AutoMorphingModel.h"
 #include "Scene.h"
-
+#include <queue>
 #include <memory>
 #include <utility>
 
@@ -33,4 +33,6 @@ private:
     Eigen::MatrixXd V, C, N, T, points,edges,colors;
     bool IK = false;
     int arm_index =2;
+    std::queue<float> next_rotations ;
+    Eigen::Vector3f N_vec;
 };

@@ -143,54 +143,51 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
     program.SetUniform4f("light_position", 0.0, 15.0f, 0.0, 1.0f);
 
     if(IK){
-        Eigen::Vector3f l = Eigen::Vector3f(1.6f,0,0);
-//        Eigen::Vector3f root_end_arm = (cyls[2]->GetRotation()*cyls[2]->GetTranslation());
-//        Eigen::Vector3f x_translation_end_arm = cyls[2]->GetRotation()*l;
-//        Eigen::Vector3f E =Eigen::Vector3f((root_end_arm).x() + (x_translation_end_arm).x(),(root_end_arm).y() + (x_translation_end_arm).y(),(root_end_arm).z() + (x_translation_end_arm).z()) ;
-        Eigen::Vector3f E = GetCylPos(2);
-        Eigen::Vector3f D = sphere1->GetRotation()*sphere1->GetTranslation();
-//        float dist = sqrt(pow(D.x()-E.x(),2)+pow(D.y()-E.y(),2)+pow(D.z()-E.z(),2));
-        float dist = (D-E).norm();
-        if(dist > 0.05f){
-//            Eigen::Vector3f R = (cyls[arm_index]->GetRotation()*cyls[arm_index]->GetTranslation());
-            Eigen::Vector3f  R ;
-            if(arm_index==0){
-                R=Eigen::Vector3f(0,0,0);
+        if(next_rotations.empty()){
+            Eigen::Vector3f l = Eigen::Vector3f(1.6f,0,0);
+            Eigen::Vector3f E = GetCylPos(2);
+            Eigen::Vector3f D = sphere1->GetRotation()*sphere1->GetTranslation();
+            float dist = (D-E).norm();
+            if(dist > 0.05f){
+                Eigen::Vector3f  R ;
+                if(arm_index==0){
+                    R=Eigen::Vector3f(0,0,0);
 
+                }else{
+                    int index=(arm_index-1);
+                    R= GetCylPos(index);
+                }
+                Eigen::Vector3f RD=D-R;
+                Eigen::Vector3f RE=E-R;
+                N_vec= RE.cross(RD);
+                float lenght_RD = sqrt(pow(RD.x(),2)+pow(RD.y(),2)+pow(RD.z(),2));
+                float lenght_RE = sqrt(pow(RE.x(),2)+pow(RE.y(),2)+pow(RE.z(),2));
+                float cos_a =((RD).x() * (RE).x()+(RD).y() * (RE).y()+(RD).z() * (RE).z())/(lenght_RD*lenght_RE);
+                float a= acos(cos_a);
+                float a_frac = a/100;
+                for (int i =0 ; i<100 ; i++){
+                    next_rotations.push(a_frac);
+                }
+    //            cyls[arm_index]->Rotate(a,N);
+    //            IK=false;
+                Eigen::Vector3f position= GetCylPos(arm_index);
+                if(arm_index == 0){
+                    arm_index = 2;
+                }
+                else{
+                    arm_index = arm_index-1;
+                }
             }else{
-                int index=(arm_index-1);
-                R= GetCylPos(index);
+                    IK=false;
+                    std::cout<<"finished"<<std::endl;
             }
-//            Eigen::Vector3f RD=Eigen::Vector3f((D).x() - (R).x(),(D).y() - (R).y(),(D).z() - (R).z()) ;
-//            Eigen::Vector3f RE=Eigen::Vector3f((E).x() - (R).x(),(E).y() - (R).y(),(E).z() - (R).z()) ;
-            Eigen::Vector3f RD=D-R;
-            Eigen::Vector3f RE=E-R;
-            Eigen::Vector3f N= RE.cross(RD);
-            float lenght_RD = sqrt(pow(RD.x(),2)+pow(RD.y(),2)+pow(RD.z(),2));
-            float lenght_RE = sqrt(pow(RE.x(),2)+pow(RE.y(),2)+pow(RE.z(),2));
-//            float lenght_N = sqrt(pow(N.x(),2)+pow(N.y(),2)+pow(N.z(),2));
-//            Eigen::Vector3f N_NORMAL= N.normalized();
-//            Axis N_axis =
-            float cos_a =((RD).x() * (RE).x()+(RD).y() * (RE).y()+(RD).z() * (RE).z())/(lenght_RD*lenght_RE);
-            float a= acos(cos_a);
 
-            cyls[arm_index]->Rotate(a,N);
+        }else{
+            float next_a=next_rotations.front();
+            next_rotations.pop();
+            cyls[arm_index]->Rotate(next_a,N_vec);
+        }
 
-//            cyls[arm_index]->RotateByDegree(a,Eigen::Vector3f(0,0,1));
-//            cyls[arm_index]->RotateInSystem(cyls[arm_index]->GetRotation().transpose(),a,Axis::Z);
-//            IK=false;
-            Eigen::Vector3f position= GetCylPos(arm_index);
-            if(arm_index == 0){
-                arm_index = 2;
-            }
-            else{
-                arm_index = arm_index-1;
-            }
-        }
-        else{
-            IK=false;
-            std::cout<<"finished"<<std::endl;
-        }
 
     }
 }
