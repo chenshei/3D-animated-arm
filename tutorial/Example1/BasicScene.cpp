@@ -104,6 +104,7 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
     //autoCube->showWireframe = true;
     camera->Translate(22, Axis::Z);
     root->AddChild(sphere1);
+
 //    root->AddChild(cyl);
     //root->AddChild(autoCube);
     // points = Eigen::MatrixXd::Ones(1,3);
@@ -116,7 +117,7 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
 
     //autoCube->AddOverlay(points,edges,colors);
     // mesh[0]->data.push_back({V,F,V,E});
-    int num_collapsed;
+//    int num_collapsed;
 
   // Function to reset original mesh and data structures
     //V = mesh[0]->data[0].vertices;
@@ -146,7 +147,7 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
         if(next_rotations.empty()){
             Eigen::Vector3f l = Eigen::Vector3f(1.6f,0,0);
             Eigen::Vector3f E = GetCylPos(2);
-            Eigen::Vector3f D = sphere1->GetRotation()*sphere1->GetTranslation();
+            D = sphere1->GetRotation()*sphere1->GetTranslation();
             float dist = (D-E).norm();
             if(dist > 0.05f){
                 Eigen::Vector3f  R ;
@@ -289,16 +290,33 @@ void BasicScene::KeyCallback(Viewport* viewport, int x, int y, int key, int scan
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
                 break;
             case GLFW_KEY_UP:
-                cyls[pickedIndex]->RotateInSystem(system, 0.1f, Axis::X);
+                if(pickedIndex==0){
+                    cyls[pickedIndex]->RotateInSystem(system, 0.1f, Axis::X);
+                }else{
+                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex]->GetRotation(), 0.1f, Axis::X);
+                }
+
                 break;
             case GLFW_KEY_DOWN:
-                cyls[pickedIndex]->RotateInSystem(system, -0.1f, Axis::X);
+                if(pickedIndex==0){
+                    cyls[pickedIndex]->RotateInSystem(system, -0.1f, Axis::X);
+                }else{
+                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex]->GetRotation(), -0.1f, Axis::X);
+                }
                 break;
             case GLFW_KEY_LEFT:
-                cyls[pickedIndex]->RotateInSystem(system, 0.1f, Axis::Y);
+                if(pickedIndex==0){
+                    cyls[pickedIndex]->RotateInSystem(system, 0.1f, Axis::Y);
+                }else{
+                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex]->GetRotation(), 0.1f, Axis::Y);
+                }
                 break;
             case GLFW_KEY_RIGHT:
-                cyls[pickedIndex]->RotateInSystem(system, -0.1f, Axis::Y);
+                if(pickedIndex==0){
+                    cyls[pickedIndex]->RotateInSystem(system, -0.1f, Axis::Y);
+                }else{
+                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex]->GetRotation(), 0.1f, Axis::Y);
+                }
                 break;
             case GLFW_KEY_W:
                 camera->TranslateInSystem(system, {0, 0.1f, 0});
@@ -309,14 +327,37 @@ void BasicScene::KeyCallback(Viewport* viewport, int x, int y, int key, int scan
             case GLFW_KEY_A:
                 camera->TranslateInSystem(system, {-0.1f, 0, 0});
                 break;
-            case GLFW_KEY_D:
-                camera->TranslateInSystem(system, {0.1f, 0, 0});
-                break;
             case GLFW_KEY_B:
                 camera->TranslateInSystem(system, {0, 0, 0.1f});
                 break;
             case GLFW_KEY_F:
                 camera->TranslateInSystem(system, {0, 0, -0.1f});
+                break;
+            case GLFW_KEY_P:
+                if(pickedModel){
+//                    pickedModel->GetRotation().eulerAngles()
+                }
+                break;
+            case GLFW_KEY_T:
+                for(int i =0 ; i <3 ; i++){
+                    std::cout<<"point position cyl "<< i << std::endl;
+                    print_vector(GetCylPos(i));
+                }
+                break;
+            case GLFW_KEY_D:
+                D= sphere1->GetRotation()*sphere1->GetTranslation();
+                print_vector(D);
+                break;
+            case GLFW_KEY_N:
+                if(pickedIndex == cyls.size()-1){
+                    pickedIndex = 0;
+//                    pickedModel=cyls[0];
+                }else{
+                    if(pickedIndex < cyls.size()-1){
+                        pickedIndex = pickedIndex + 1;
+//                        pickedModel = cyls[pickedIndex];
+                    }
+                }
                 break;
             case GLFW_KEY_1:
                 if( pickedIndex > 0)
@@ -363,7 +404,6 @@ Eigen::Vector3f BasicScene::GetCylPos(int i)
         Eigen::Vector3f res1 =cyls[j]->GetRotation()*l;
         res = res + res1;
     }
-//    Eigen::Vector3f res = cyls[i]->GetRotation()*l;
     return res;
 }
 void BasicScene::print_vector(Eigen::Vector3f vec){
@@ -373,16 +413,9 @@ void BasicScene::print_vector(Eigen::Vector3f vec){
 void BasicScene::IK_algoritm(){
     IK = !IK;
     float arm_lenght = 1.6f*3.0f;
-//    Eigen::Vector3f base_position = GetCylPos(0)+(cyls[0]->GetRotation()*Eigen::Vector3f(-1.6,0,0)) ;
-//    print_vector(base_position);
-//    Eigen::Vector3f base_position = cyls[0]->GetRotation()*cyls[0]->GetTranslation();
-
     Eigen::Vector3f sphere_position = sphere1->GetRotation()*sphere1->GetTranslation();
-//    print_vector(sphere_position);
     float dist =  sphere_position.norm();
-
-//    float dist = sqrt(pow(sphere_position.x()-base_position.x(),2)+pow(sphere_position.y()-base_position.y(),2)+pow(sphere_position.z()-base_position.z(),2));
-    std::cout<<"dist:"<<dist<<std::endl;
+//    std::cout<<"dist:"<<dist<<std::endl;
     if(dist > arm_lenght){
         std::cout<<"to far"<<std::endl;
         IK=false;

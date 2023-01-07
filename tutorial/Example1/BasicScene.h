@@ -35,4 +35,5 @@ private:
     int arm_index =2;
     std::queue<float> next_rotations ;
     Eigen::Vector3f N_vec;
+    Eigen::Vector3f D;
 };
