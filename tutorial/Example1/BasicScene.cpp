@@ -156,8 +156,10 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
             Eigen::Vector3f  R ;
             if(arm_index==0){
                 R=Eigen::Vector3f(0,0,0);
+
             }else{
-                R= GetCylPos(arm_index-1);
+                int index=(arm_index-1);
+                R= GetCylPos(index);
             }
 //            Eigen::Vector3f RD=Eigen::Vector3f((D).x() - (R).x(),(D).y() - (R).y(),(D).z() - (R).z()) ;
 //            Eigen::Vector3f RE=Eigen::Vector3f((E).x() - (R).x(),(E).y() - (R).y(),(E).z() - (R).z()) ;
@@ -171,10 +173,13 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
 //            Axis N_axis =
             float cos_a =((RD).x() * (RE).x()+(RD).y() * (RE).y()+(RD).z() * (RE).z())/(lenght_RD*lenght_RE);
             float a= acos(cos_a);
+
             cyls[arm_index]->Rotate(a,N);
-            Eigen::Vector3f position= GetCylPos(arm_index);
+
 //            cyls[arm_index]->RotateByDegree(a,Eigen::Vector3f(0,0,1));
-//            cyls[arm_index]->RotateInSystem(cyls[arm_index]->GetRotation(),a,N_NORMAL);
+//            cyls[arm_index]->RotateInSystem(cyls[arm_index]->GetRotation().transpose(),a,Axis::Z);
+//            IK=false;
+            Eigen::Vector3f position= GetCylPos(arm_index);
             if(arm_index == 0){
                 arm_index = 2;
             }
@@ -186,6 +191,7 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
             IK=false;
             std::cout<<"finished"<<std::endl;
         }
+
     }
 }
 
@@ -354,9 +360,13 @@ Eigen::Vector3f BasicScene::GetSpherePos()
 }
 Eigen::Vector3f BasicScene::GetCylPos(int i)
 {
-    Eigen::Vector3f l = Eigen::Vector3f(1.6f,0,0)*(float)(i+1);
-    Eigen::Vector3f res;
-    res = cyls[i]->GetRotation()*l;
+    Eigen::Vector3f l = Eigen::Vector3f(1.6f,0,0);
+    Eigen::Vector3f res={0,0,0};
+    for( int j = 0 ; j<=i  ;j++  ){
+        Eigen::Vector3f res1 =cyls[j]->GetRotation()*l;
+        res = res + res1;
+    }
+//    Eigen::Vector3f res = cyls[i]->GetRotation()*l;
     return res;
 }
 void BasicScene::print_vector(Eigen::Vector3f vec){
@@ -371,7 +381,7 @@ void BasicScene::IK_algoritm(){
 //    Eigen::Vector3f base_position = cyls[0]->GetRotation()*cyls[0]->GetTranslation();
 
     Eigen::Vector3f sphere_position = sphere1->GetRotation()*sphere1->GetTranslation();
-    print_vector(sphere_position);
+//    print_vector(sphere_position);
     float dist =  sphere_position.norm();
 
 //    float dist = sqrt(pow(sphere_position.x()-base_position.x(),2)+pow(sphere_position.y()-base_position.y(),2)+pow(sphere_position.z()-base_position.z(),2));
