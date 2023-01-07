@@ -18,7 +18,8 @@ public:
      Eigen::Vector3f GetSpherePos();
     Eigen::Vector3f GetCylPos(int i);
     void print_vector(Eigen::Vector3f vec);
-     void IK_algoritm();
+    void printMat(const Eigen::Matrix3d & mat);
+    void IK_algoritm();
 private:
     std::shared_ptr<Movable> root;
     std::shared_ptr<cg3d::Model> sphere1 ,cube;

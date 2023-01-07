@@ -171,7 +171,7 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
                 }
     //            cyls[arm_index]->Rotate(a,N);
     //            IK=false;
-                Eigen::Vector3f position= GetCylPos(arm_index);
+                //Eigen::Vector3f position= GetCylPos(arm_index);
                 if(arm_index == 0){
                     arm_index = 2;
                 }
@@ -179,8 +179,11 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
                     arm_index = arm_index-1;
                 }
             }else{
-                    IK=false;
-                    std::cout<<"finished"<<std::endl;
+                IK=false;
+                std::cout<<"finished"<<std::endl;
+                while (!next_rotations.empty()){
+                    next_rotations.pop();
+                }
             }
 
         }else{
@@ -293,7 +296,7 @@ void BasicScene::KeyCallback(Viewport* viewport, int x, int y, int key, int scan
                 if(pickedIndex==0){
                     cyls[pickedIndex]->RotateInSystem(system, 0.1f, Axis::X);
                 }else{
-                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex]->GetRotation(), 0.1f, Axis::X);
+                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex-1]->GetRotation(), 0.1f, Axis::X);
                 }
 
                 break;
@@ -301,21 +304,21 @@ void BasicScene::KeyCallback(Viewport* viewport, int x, int y, int key, int scan
                 if(pickedIndex==0){
                     cyls[pickedIndex]->RotateInSystem(system, -0.1f, Axis::X);
                 }else{
-                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex]->GetRotation(), -0.1f, Axis::X);
+                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex-1]->GetRotation(), -0.1f, Axis::X);
                 }
                 break;
             case GLFW_KEY_LEFT:
                 if(pickedIndex==0){
                     cyls[pickedIndex]->RotateInSystem(system, 0.1f, Axis::Y);
                 }else{
-                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex]->GetRotation(), 0.1f, Axis::Y);
+                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex-1]->GetRotation(), 0.1f, Axis::Y);
                 }
                 break;
             case GLFW_KEY_RIGHT:
                 if(pickedIndex==0){
                     cyls[pickedIndex]->RotateInSystem(system, -0.1f, Axis::Y);
                 }else{
-                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex]->GetRotation(), 0.1f, Axis::Y);
+                    cyls[pickedIndex]->RotateInSystem(cyls[pickedIndex-1]->GetRotation(), 0.1f, Axis::Y);
                 }
                 break;
             case GLFW_KEY_W:
@@ -335,7 +338,29 @@ void BasicScene::KeyCallback(Viewport* viewport, int x, int y, int key, int scan
                 break;
             case GLFW_KEY_P:
                 if(pickedModel){
-//                    pickedModel->GetRotation().eulerAngles()
+                    // Create a rotation matrix
+                    Eigen::Vector3f euler_angles = cyls[pickedIndex]->GetRotation().eulerAngles(2,0,2);
+//                    Eigen::Matrix3Xf A1;
+                    Eigen::Matrix3d A1;
+                    A1 << cos(euler_angles[0]), -sin(euler_angles[0]), 0,
+                            sin(euler_angles[0]),  cos(euler_angles[0]), 0,
+                            0,       0,      1;
+
+                    Eigen::Matrix3d A2;
+                    A2 << 1,0, 0,
+                            0,  cos(euler_angles[1]), -sin(euler_angles[1]),
+                            0,       sin(euler_angles[1]),      cos(euler_angles[1]);
+
+                    Eigen::Matrix3d A3;
+                    A3 << cos(euler_angles[2]), -sin(euler_angles[2]), 0,
+                            sin(euler_angles[2]),  cos(euler_angles[2]), 0,
+                            0,       0,      1;
+                    std::cout<<"A1: "<<std::endl;
+                    printMat(A1);
+                    std::cout<<"A2: "<<std::endl;
+                    printMat(A2);
+                    std::cout<<"A3: "<<std::endl;
+                    printMat(A3);
                 }
                 break;
             case GLFW_KEY_T:
@@ -408,6 +433,15 @@ Eigen::Vector3f BasicScene::GetCylPos(int i)
 }
 void BasicScene::print_vector(Eigen::Vector3f vec){
     std::cout << "(" << vec.x() <<"," << vec.y() << "," << vec.z() << ")" << std::endl;
+}
+void BasicScene::printMat(const Eigen::Matrix3d & mat){
+    std::cout << " matrix:" << std::endl;
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+            std::cout << mat(j, i) << " ";
+        std::cout << std::endl;
+    }
 }
 
 void BasicScene::IK_algoritm(){
