@@ -2,6 +2,8 @@
 
 #include "SceneWithImGui.h"
 #include "CamModel.h"
+#include "igl/AABB.h"
+#include "../Example1/Fruit.h"
 
 
 class SceneWithCameras : public cg3d::SceneWithImGui
@@ -11,9 +13,21 @@ private:
     std::shared_ptr<cg3d::Material> carbon;
     bool animate = false;
     void BuildImGui() override;
-    std::vector<std::shared_ptr<cg3d::Camera>> camList{4};
-    std::shared_ptr<cg3d::Model> cube1, cube2, cylinder, sphere1, sphere2;
+    std::vector<std::shared_ptr<cg3d::Camera>> camList{2};
+    std::shared_ptr<cg3d::Model> cube1, cube2, cylinder, sphere1, sphere2,snake;
     cg3d::Viewport* viewport = nullptr;
+    std::vector<std::shared_ptr<cg3d::Model>> cyls;
+//    std::vector<std::shared_ptr<cg3d::Model>> yellowSpheres;
+//    std::vector<std::shared_ptr<cg3d::Model>> blueSpheres;
+//    std::vector<Eigen::Vector3f> yellowVelocities;
+//    std::vector<Eigen::Vector3f> blueVelocities;
+//    float yellowVelocity = 0.05;
+//    float blueVelocity =0.01 ;
+    int offset = -99;
+    int range =  99 - offset +1;
+//    std::vector<igl::AABB<Eigen::MatrixXd,3>> yellowTree;
+//    std::vector<igl::AABB<Eigen::MatrixXd,3>> blueTree;
+    std::vector<Fruit> fruits;
 
 public:
 
@@ -29,7 +43,13 @@ private:
     inline void SetActive(bool _isActive = true) { animate = _isActive; }
     void LoadObjectFromFileDialog();
     void SetCamera(int index);
-    static std::shared_ptr<CamModel> CreateCameraWithModel(int width, int height, float fov, float near, float far, const std::shared_ptr<cg3d::Material>& material);
+//    static std::shared_ptr<CamModel> CreateCameraWithModel(int width, int height, float fov, float near, float far, const std::shared_ptr<cg3d::Material>& material);
     static void DumpMeshData(const Eigen::IOFormat& simple, const cg3d::MeshData& data) ;
+//    Eigen::Vector3f findVelocity(float factor);
+//    bool findSmallestBox(igl::AABB<Eigen::MatrixXd ,3> tree1, igl::AABB<Eigen::MatrixXd ,3> tree2);
+//    bool isCollide(igl::AABB<Eigen::MatrixXd,3> tree1, igl::AABB<Eigen::MatrixXd,3> tree2);
+//    void initTrees();
+//    void colidingBalls();
+
 };
 

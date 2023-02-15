@@ -26,6 +26,7 @@ void Scene::Update(const Program& program, const Eigen::Matrix4f& proj, const Ei
     program.SetUniformMatrix4f("Proj", &proj);
     program.SetUniformMatrix4f("View", &view);
     program.SetUniformMatrix4f("Model", &model);
+
 }
 
 void Scene::MouseCallback(Viewport* viewport, int x, int y, int button, int action, int mods, int buttonState[])
