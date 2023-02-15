@@ -12,7 +12,7 @@
 #include "file_dialog_open.h"
 #include "GLFW/glfw3.h"
 #include "../Example1/IglMeshLoader.h"
-#include "../Example1/Fruit.h"
+#include "Fruit.h"
 
 
 using namespace cg3d;
@@ -126,137 +126,146 @@ void SceneWithCameras::SetCamera(int index)
 //    return Velocity;
 //}
 //
-//bool SceneWithCameras::findSmallestBox(igl::AABB<Eigen::MatrixXd ,3> tree1, igl::AABB<Eigen::MatrixXd ,3> tree2){
-//    if(isCollide(tree1,tree2)) {
-//
-//        if (tree1.is_leaf() && tree2.is_leaf()) {
+bool SceneWithCameras::findSmallestBox(igl::AABB<Eigen::MatrixXd,3> tree1,igl::AABB<Eigen::MatrixXd,3> tree2){
+    if (tree1.is_leaf() && tree2.is_leaf()) {
 //            smallestbox1=tree1.m_box;
 //            smallestbox2=tree2.m_box;
-//            return true;
-//        } else if (tree1.is_leaf() && !tree2.is_leaf())
-//            return findSmallestBox(tree1, *tree2.m_left) || findSmallestBox(tree1, *tree2.m_right);
-//        else if (!tree1.is_leaf() && tree2.is_leaf())
-//            return findSmallestBox(*tree1.m_left, tree2) || findSmallestBox(*tree1.m_right, tree2);
-//        else {
-//            return findSmallestBox(*tree1.m_right, *tree2.m_right) ||
-//                   findSmallestBox(*tree1.m_right, *tree2.m_left) ||
-//                   findSmallestBox(*tree1.m_left, *tree2.m_left) ||
-//                   findSmallestBox(*tree1.m_left, *tree2.m_right);
-//        }
-//    }
-//}
-//
-//
-//bool SceneWithCameras::isCollide(igl::AABB<Eigen::MatrixXd,3> tree1, igl::AABB<Eigen::MatrixXd,3> tree2){
-//
-//    Eigen::AlignedBox<double,3> box1=tree1.m_box;
-//    Eigen::AlignedBox<double,3> box2=tree2.m_box;
-//
-//    double scale=10;
-//    double a0=box1.sizes()[0]*scale/2;
-//    double a1=box1.sizes()[1]*scale/2;
-//    double a2=box1.sizes()[2]*scale/2;
-//
-//    double b0=box2.sizes()[0]*scale/2;
-//    double b1=box2.sizes()[1]*scale/2;
-//    double b2=box2.sizes()[2]*scale/2;
-//
-//    Eigen::MatrixXd A=bunny1->GetRotation().cast<double>();
-//    Eigen::MatrixXd B=bunny2->GetRotation().cast<double>();
-//
-//    Eigen::Vector3d A0=A*Eigen::Vector3d(1,0,0);
-//    Eigen::Vector3d A1=A*Eigen::Vector3d(0,1,0);
-//    Eigen::Vector3d A2=A*Eigen::Vector3d(0,0,1);
-//
-//
-//    Eigen::Vector3d B0=B*Eigen::Vector3d(1,0,0);
-//    Eigen::Vector3d B1=B*Eigen::Vector3d(0,1,0);
-//    Eigen::Vector3d B2=B*Eigen::Vector3d(0,0,1);
-//
-//    Eigen::MatrixXd C=A.transpose()*B;
-//
-//    Eigen::Vector4f center0={box1.center().x(),box1.center().y(),box1.center().z(),1};
-//    Eigen::Vector4f C0=bunny1->GetTransform()*center0;
-//    Eigen::Vector4f center1={box2.center().x(),box2.center().y(),box2.center().z(),1};
-//    Eigen::Vector4f C1=bunny2->GetTransform()*center1;
-//
-//
-//    Eigen::Vector3d newC0= {C0[0],C0[1],C0[2]};
-//    Eigen::Vector3d newC1= {C1[0],C1[1],C1[2]};
-//
-//    Eigen::Vector3d D=newC1-newC0;
-//
-//    if(abs(A0.dot(D)) > a0+(b0 * abs(C(0, 0))) + (b1 * abs(C(0, 1))) + (b2 * abs(C(0, 2)))){
-//        return false;
-//    }
-//
-//    if(abs(A1.dot(D)) > a1+(b0 * abs(C(1, 0))) + (b1 * abs(C(1, 1))) + (b2 * abs(C(1, 2)))){
-//        return false;
-//    }
-//
-//    if(abs(A2.dot(D)) > a2+(b0 * abs(C(2, 0))) + (b1 * abs(C(2, 1))) + (b2 * abs(C(2, 2)))){
-//        return false;
-//    }
-//
-//    if(abs(B0.dot(D)) > (a0 * abs(C(0, 0))) + (a1 * abs(C(1, 0))) + (a2 * abs(C(2, 0))) + b0){
-//        return false;
-//    }
-//
-//    if(abs(B1.dot(D)) > (a0 * abs(C(0, 1))) + (a1 * abs(C(1, 1))) + (a2 * abs(C(2, 1)))+b1){
-//        return false;
-//    }
-//
-//    if(abs(B2.dot(D)) > (a0 * abs(C(0, 2))) + (a1 * abs(C(1, 2))) + (a2 * abs(C(2, 2)))+b2){
-//        return false;
-//    }
-//
-//    if(abs((C(1, 0) * A2).dot(D) - (C(2, 0) * A1).dot(D)) > (a1 * abs(C(2, 0))) + (a2 * abs(C(1, 0))) + (b1 * abs(C(0, 2))) + (b2 * abs(C(0, 1))) )
-//    {
-//        return false;
-//    }
-//
-//    if(abs((C(1, 1) * A2).dot(D) - (C(2, 1) * A1).dot(D)) > (a1 * abs(C(2, 1))) + (a2 * abs(C(1, 1))) + (b0 * abs(C(0, 2))) + (b2 * abs(C(0, 0))) )
-//    {
-//        return false;
-//    }
-//
-//    if(abs((C(1, 2) * A2).dot(D) - (C(2, 2) * A1).dot(D)) > (a1 * abs(C(2, 2))) + (a2 * abs(C(1, 2))) + (b0 * abs(C(0, 1))) + (b1 * abs(C(0, 0))))
-//    {
-//        return false;
-//    }
-//
-//    if(abs((C(2, 0) * A0).dot(D) - (C(0, 0) * A2).dot(D)) >(a0 * abs(C(2, 0))) + (a2 * abs(C(0, 0))) + (b1 * abs(C(1, 2))) + (b2 * abs(C(1, 1))) )
-//    {
-//        return false;
-//    }
-//
-//    if(abs((C(2, 1) * A0).dot(D) - (C(0, 1) * A2).dot(D)) > (a0 * abs(C(2, 1))) + (a2 * abs(C(0, 1))) +(b0 * abs(C(1, 2))) + (b2 * abs(C(1, 0))) )
-//    {
-//        return false;
-//    }
-//
-//    if(abs((C(2, 2) * A0).dot(D) - (C(0, 2) * A2).dot(D)) > (a0 * abs(C(2, 2))) + (a2 * abs(C(0, 2))) + (b0 * abs(C(1, 1))) + (b1 * abs(C(1, 0))))
-//    {
-//        return false;
-//    }
-//
-//    if(abs((C(0, 0) * A1).dot(D) - (C(1, 0) * A0).dot(D)) > (a0 * abs(C(1, 0))) + (a1 * abs(C(0, 0))) +(b1 * abs(C(2, 2))) + (b2 * abs(C(2, 1))) )
-//    {
-//        return false;
-//    }
-//
-//    if(abs((C(0, 1) * A1).dot(D) - (C(1, 1) * A0).dot(D)) > (a0 * abs(C(1, 1))) + (a1 * abs(C(0, 1))) + (b0 * abs(C(2, 2))) + (b2 * abs(C(2, 0))))
-//    {
-//        return false;
-//    }
-//
-//    if(abs((C(0, 2) * A1).dot(D) - (C(1, 2) * A0).dot(D)) > (a0 * abs(C(1, 2))) + (a1 * abs(C(0, 2))) + (b0 * abs(C(2, 1))) + (b1 * abs(C(2, 0)))) {
-//        return false;
-//    }
-//    return true;
-//
-//
-//}
+        return true;
+    } else if (tree1.is_leaf() && !tree2.is_leaf())
+        return findSmallestBox(tree1, *tree2.m_left) || findSmallestBox(tree1, *tree2.m_right);
+    else if (!tree1.is_leaf() && tree2.is_leaf())
+        return findSmallestBox(*tree1.m_left, tree2) || findSmallestBox(*tree1.m_right, tree2);
+    else {
+        return findSmallestBox(*tree1.m_right, *tree2.m_right) ||
+               findSmallestBox(*tree1.m_right, *tree2.m_left) ||
+               findSmallestBox(*tree1.m_left, *tree2.m_left) ||
+               findSmallestBox(*tree1.m_left, *tree2.m_right);
+    }
+}
+
+bool SceneWithCameras::findSmallestBox(Fruit f1, Fruit f2){
+    igl::AABB<Eigen::MatrixXd,3> tree1 = f1.getTree();
+    igl::AABB<Eigen::MatrixXd,3> tree2 = f2.getTree();
+    if(isCollide(f1,f2)) {
+        findSmallestBox(tree1,tree2);
+    }
+}
+
+bool SceneWithCameras::isCollide(Fruit f1, Fruit f2){
+
+    igl::AABB<Eigen::MatrixXd,3> tree1 = f1.getTree();
+    igl::AABB<Eigen::MatrixXd,3> tree2 = f2.getTree();
+    std::shared_ptr<cg3d::Model> model1 = f1.getModel();
+    std::shared_ptr<cg3d::Model> model2 = f2.getModel();
+
+    Eigen::AlignedBox<double,3> box1=tree1.m_box;
+    Eigen::AlignedBox<double,3> box2=tree2.m_box;
+
+    double scale=10;
+    double a0=box1.sizes()[0]*scale/2;
+    double a1=box1.sizes()[1]*scale/2;
+    double a2=box1.sizes()[2]*scale/2;
+
+    double b0=box2.sizes()[0]*scale/2;
+    double b1=box2.sizes()[1]*scale/2;
+    double b2=box2.sizes()[2]*scale/2;
+
+    Eigen::MatrixXd A=model1->GetRotation().cast<double>();
+    Eigen::MatrixXd B=model2->GetRotation().cast<double>();
+
+    Eigen::Vector3d A0=A*Eigen::Vector3d(1,0,0);
+    Eigen::Vector3d A1=A*Eigen::Vector3d(0,1,0);
+    Eigen::Vector3d A2=A*Eigen::Vector3d(0,0,1);
+
+
+    Eigen::Vector3d B0=B*Eigen::Vector3d(1,0,0);
+    Eigen::Vector3d B1=B*Eigen::Vector3d(0,1,0);
+    Eigen::Vector3d B2=B*Eigen::Vector3d(0,0,1);
+
+    Eigen::MatrixXd C=A.transpose()*B;
+
+    Eigen::Vector4f center0={box1.center().x(),box1.center().y(),box1.center().z(),1};
+    Eigen::Vector4f C0=model1->GetTransform()*center0;
+    Eigen::Vector4f center1={box2.center().x(),box2.center().y(),box2.center().z(),1};
+    Eigen::Vector4f C1=model2->GetTransform()*center1;
+
+
+    Eigen::Vector3d newC0= {C0[0],C0[1],C0[2]};
+    Eigen::Vector3d newC1= {C1[0],C1[1],C1[2]};
+
+    Eigen::Vector3d D=newC1-newC0;
+
+    if(abs(A0.dot(D)) > a0+(b0 * abs(C(0, 0))) + (b1 * abs(C(0, 1))) + (b2 * abs(C(0, 2)))){
+        return false;
+    }
+
+    if(abs(A1.dot(D)) > a1+(b0 * abs(C(1, 0))) + (b1 * abs(C(1, 1))) + (b2 * abs(C(1, 2)))){
+        return false;
+    }
+
+    if(abs(A2.dot(D)) > a2+(b0 * abs(C(2, 0))) + (b1 * abs(C(2, 1))) + (b2 * abs(C(2, 2)))){
+        return false;
+    }
+
+    if(abs(B0.dot(D)) > (a0 * abs(C(0, 0))) + (a1 * abs(C(1, 0))) + (a2 * abs(C(2, 0))) + b0){
+        return false;
+    }
+
+    if(abs(B1.dot(D)) > (a0 * abs(C(0, 1))) + (a1 * abs(C(1, 1))) + (a2 * abs(C(2, 1)))+b1){
+        return false;
+    }
+
+    if(abs(B2.dot(D)) > (a0 * abs(C(0, 2))) + (a1 * abs(C(1, 2))) + (a2 * abs(C(2, 2)))+b2){
+        return false;
+    }
+
+    if(abs((C(1, 0) * A2).dot(D) - (C(2, 0) * A1).dot(D)) > (a1 * abs(C(2, 0))) + (a2 * abs(C(1, 0))) + (b1 * abs(C(0, 2))) + (b2 * abs(C(0, 1))) )
+    {
+        return false;
+    }
+
+    if(abs((C(1, 1) * A2).dot(D) - (C(2, 1) * A1).dot(D)) > (a1 * abs(C(2, 1))) + (a2 * abs(C(1, 1))) + (b0 * abs(C(0, 2))) + (b2 * abs(C(0, 0))) )
+    {
+        return false;
+    }
+
+    if(abs((C(1, 2) * A2).dot(D) - (C(2, 2) * A1).dot(D)) > (a1 * abs(C(2, 2))) + (a2 * abs(C(1, 2))) + (b0 * abs(C(0, 1))) + (b1 * abs(C(0, 0))))
+    {
+        return false;
+    }
+
+    if(abs((C(2, 0) * A0).dot(D) - (C(0, 0) * A2).dot(D)) >(a0 * abs(C(2, 0))) + (a2 * abs(C(0, 0))) + (b1 * abs(C(1, 2))) + (b2 * abs(C(1, 1))) )
+    {
+        return false;
+    }
+
+    if(abs((C(2, 1) * A0).dot(D) - (C(0, 1) * A2).dot(D)) > (a0 * abs(C(2, 1))) + (a2 * abs(C(0, 1))) +(b0 * abs(C(1, 2))) + (b2 * abs(C(1, 0))) )
+    {
+        return false;
+    }
+
+    if(abs((C(2, 2) * A0).dot(D) - (C(0, 2) * A2).dot(D)) > (a0 * abs(C(2, 2))) + (a2 * abs(C(0, 2))) + (b0 * abs(C(1, 1))) + (b1 * abs(C(1, 0))))
+    {
+        return false;
+    }
+
+    if(abs((C(0, 0) * A1).dot(D) - (C(1, 0) * A0).dot(D)) > (a0 * abs(C(1, 0))) + (a1 * abs(C(0, 0))) +(b1 * abs(C(2, 2))) + (b2 * abs(C(2, 1))) )
+    {
+        return false;
+    }
+
+    if(abs((C(0, 1) * A1).dot(D) - (C(1, 1) * A0).dot(D)) > (a0 * abs(C(1, 1))) + (a1 * abs(C(0, 1))) + (b0 * abs(C(2, 2))) + (b2 * abs(C(2, 0))))
+    {
+        return false;
+    }
+
+    if(abs((C(0, 2) * A1).dot(D) - (C(1, 2) * A0).dot(D)) > (a0 * abs(C(1, 2))) + (a1 * abs(C(0, 2))) + (b0 * abs(C(2, 1))) + (b1 * abs(C(2, 0)))) {
+        return false;
+    }
+    return true;
+
+
+}
 //void SceneWithCameras::initTrees(){
 //    for (int i = 0 ; i < yellowSpheres.size() ; i++ ){
 //        auto mesh = yellowSpheres[i]->GetMeshList();
@@ -266,21 +275,19 @@ void SceneWithCameras::SetCamera(int index)
 //        tree.init(V1,F1);
 //        modelToTree.insert(yellowSpheres[i],tree);
 //    }
+//
+//}
 
-//}
-//
-//void SceneWithCameras::colidingBalls(){
-//    std::map<std::shared_ptr<cg3d::Model>,igl::AABB<Eigen::MatrixXd,3>>::iterator itr= modelToTree.begin();
-//    while (itr != modelToTree.end()){
-//        std::map<std::shared_ptr<cg3d::Model>,igl::AABB<Eigen::MatrixXd,3>>::iterator itr2= itr;
-//        itr2++;
-//        while (itr2 != modelToTree.end()){
-//            if(findSmallestBox(itr->second,itr2->second)){
-//
-//            }
-//        }
-//    }
-//}
+void SceneWithCameras::colidingBalls(){
+    for(int i =0 ; i < fruits.size() ; i++){
+        for(int j =i+1 ; j <fruits.size() ; j++){
+            if(findSmallestBox(fruits[i],fruits[j])){
+                fruits[i].setVelocity(Eigen::Vector3f(-fruits[i].getVelocity().x(),0,-fruits[i].getVelocity().z()));
+                fruits[j].setVelocity(Eigen::Vector3f(-fruits[j].getVelocity().x(),0,-fruits[j].getVelocity().z()));
+            }
+        }
+    }
+}
 
 
 void SceneWithCameras::Init(float fov, int width, int height, float near, float far)

@@ -43,5 +43,9 @@ const Eigen::Vector3f &Fruit::getVelocity() const {
 }
 
 void Fruit::setVelocity(const Eigen::Vector3f &velocity) {
-    Fruitsss::velocity = velocity;
+    Fruit::velocity = velocity;
+}
+
+const igl::AABB<Eigen::MatrixXd, 3> &Fruit::getTree() const {
+    return tree;
 }

@@ -25,11 +25,12 @@ public:
 
     void setVelocity(const Eigen::Vector3f &velocity);
 
+    const igl::AABB<Eigen::MatrixXd, 3> &getTree() const;
+
 
 private:
     Eigen::Vector3f findVelocity(float factor);
     void initTree();
 };
-
 
 #endif //ENGINEREWORK_FRUIT_H

@@ -3,7 +3,7 @@
 #include "SceneWithImGui.h"
 #include "CamModel.h"
 #include "igl/AABB.h"
-#include "../Example1/Fruit.h"
+#include "Fruit.h"
 
 
 class SceneWithCameras : public cg3d::SceneWithImGui
@@ -46,10 +46,11 @@ private:
 //    static std::shared_ptr<CamModel> CreateCameraWithModel(int width, int height, float fov, float near, float far, const std::shared_ptr<cg3d::Material>& material);
     static void DumpMeshData(const Eigen::IOFormat& simple, const cg3d::MeshData& data) ;
 //    Eigen::Vector3f findVelocity(float factor);
-//    bool findSmallestBox(igl::AABB<Eigen::MatrixXd ,3> tree1, igl::AABB<Eigen::MatrixXd ,3> tree2);
-//    bool isCollide(igl::AABB<Eigen::MatrixXd,3> tree1, igl::AABB<Eigen::MatrixXd,3> tree2);
+    bool findSmallestBox(Fruit f1, Fruit f2);
+    bool findSmallestBox(igl::AABB<Eigen::MatrixXd,3> tree1,igl::AABB<Eigen::MatrixXd,3> tree2);
+    bool isCollide(Fruit f1, Fruit f2);
 //    void initTrees();
-//    void colidingBalls();
+    void colidingBalls();
 
 };
 
